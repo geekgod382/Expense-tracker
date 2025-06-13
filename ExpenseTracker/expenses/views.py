@@ -2,13 +2,26 @@ from django.shortcuts import render, redirect
 from .models import Expense
 from .forms import ExpenseForm
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from datetime import datetime
 
 # Create your views here.
 @login_required
 def home(request):
-    expenses = Expense.objects.filter(user = request.user)
+    expenses = Expense.objects.filter(user=request.user)
     total = sum(exp.amount for exp in expenses)
-    return render(request, 'expenses/home.html', {'expenses':expenses, 'total': total})
+    
+    # Calculate monthly total
+    current_month = timezone.now().month
+    current_year = timezone.now().year
+    monthly_expenses = expenses.filter(date__month=current_month, date__year=current_year)
+    monthly_total = sum(exp.amount for exp in monthly_expenses)
+    
+    return render(request, 'expenses/home.html', {
+        'expenses': expenses,
+        'total': total,
+        'monthly_total': monthly_total
+    })
 
 @login_required
 def add_expense(request):
