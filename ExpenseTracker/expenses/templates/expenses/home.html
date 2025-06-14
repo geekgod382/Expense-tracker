@@ -60,6 +60,9 @@
                                         <td>₹{{ expense.amount }}</td>
                                         <td>{{ expense.category }}</td>
                                         <td>{{ expense.date|date:"d M Y" }}</td>
+                                        <td>
+                                            <a href="{% url 'expense:delete' expense.id %}" class="btn btn-danger btn-sm">Delete</a>
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -74,5 +77,28 @@
             {% endif %}
         </div>
     </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <h3>Category-wise expense chart</h3>
+    <div id="piechart" style="width:100%; max-width: 600px; height: 400px;"></div>
+    <script>
+        var data = [{
+            type: "pie",
+            values: {{ totals_json|safe }},
+            labels: {{ categories_json|safe }},
+            textinfo: "label+value+percent",
+            textposition: "outside",
+            automargin: true
+        }];
+
+        var layout = {
+            margin: {t:0, b:0, l:0, r:0},
+            showlegend: true
+        };
+
+        Plotly.newPlot('piechart', data, layout);
+    </script>
+
 </div>
+
 {% endblock %}
